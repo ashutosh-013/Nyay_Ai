@@ -1,0 +1,19 @@
+# 🧠 Secrets
+.env
+
+# 🔊 Big Binaries (FFmpeg etc.)
+ffmprg/
+*.exe
+
+# 🧹 Python junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ⚙️ System files
+.DS_Store
+Thumbs.db
+
+# 🗂️ VS Code settings (if any)
+.vscode/

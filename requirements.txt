@@ -1,0 +1,10 @@
+Flask
+requests
+gTTS
+SpeechRecognition
+pydub
+pdfplumber
+pytesseract
+Pillow
+gunicorn
+python-dotenv

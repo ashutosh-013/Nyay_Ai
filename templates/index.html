@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nyay AI - Virtual Lawyer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans&display=swap');
+
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0; min-height: 100vh;
+    background-color: #fefcf9;
+    font-family: 'Open Sans', sans-serif;
+    color: #1a2a42;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+  }
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-image: url('/static/images.jpg');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: cover; /* or 'contain' or '80px 80px' */
+  opacity: 0.15;
+  z-index: 0;
+}
+
+
+  .container {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+    padding: 48px 40px 56px 40px;
+  }
+
+  /* Navigation Tabs */
+  nav {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  nav button {
+    background: none;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 12px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #bfa14b;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  nav button:hover {
+    background-color: #bfa14b33;
+  }
+  nav button.active {
+    background-color: #bfa14b;
+    color: #123366;
+  }
+
+  /* Sections */
+  .content-section {
+    display: none;
+    max-width: 100%;
+  }
+  .content-section.active {
+    display: block;
+  }
+
+  /* Avatar */
+  .avatar {
+    display: block;
+    margin: 0 auto 24px auto;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    object-fit: cover;
+    border: 3px solid #bfa14b;
+    transition: filter 0.3s ease;
+  }
+  .avatar.talking {
+    filter: drop-shadow(0 0 8px #bfa14b);
+  }
+
+  /* Heading */
+  h1 {
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    font-size: 2.8rem;
+    color: #123366; /* Deep navy */
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  p.tagline {
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #a68c34; /* Gold accent */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 32px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Buttons */
+  button#startStopBtn, button#clearChatBtn, button#muteBtn {
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 28px;
+    padding: 14px 32px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto 16px auto;
+    box-shadow: 0 4px 12px rgb(18 51 102 / 0.4);
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+
+  button#startStopBtn, button#clearChatBtn {
+    background-color: #123366;
+    color: white;
+  }
+  button#startStopBtn:hover, button#clearChatBtn:hover {
+    background-color: #0f294e;
+  }
+  button#startStopBtn:disabled, button#clearChatBtn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+  }
+
+  button#muteBtn {
+    background-color: #bfa14b;
+    color: #123366;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgb(191 161 75 / 0.8);
+  }
+  button#muteBtn:hover {
+    background-color: #a38736;
+    color: white;
+  }
+  button#muteBtn:active {
+    background-color: #8b6f2e;
+  }
+  button#muteBtn:disabled {
+    background-color: #ccc;
+    color: #888;
+    cursor: not-allowed;
+  }
+
+  /* Form styling */
+  form#caseForm {
+    display: flex;
+    flex-direction: column;
+  }
+
+  textarea#userText {
+    resize: vertical;
+    min-height: 140px;
+    padding: 16px 18px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    font-family: 'Open Sans', sans-serif;
+    color: #1a2a42;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+  }
+  textarea#userText:focus {
+    border-color: #bfa14b;
+    outline: none;
+    box-shadow: 0 0 6px #bfa14bcc;
+  }
+
+  label[for="file"] {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+
+  input[type="file"] {
+    margin-bottom: 32px;
+  }
+
+  button#sendBtn {
+    background-color: #bfa14b;
+    color: #123366;
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding: 16px 0;
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgb(191 161 75 / 0.6);
+    transition: background-color 0.3s ease;
+  }
+  button#sendBtn:hover {
+    background-color: #a38736;
+    color: white;
+  }
+  button#sendBtn:active {
+    background-color: #8b6f2e;
+  }
+  button#sendBtn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  /* Response */
+  h3 {
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin-top: 48px;
+    margin-bottom: 12px;
+    color: #123366;
+    text-align: center;
+  }
+  #response {
+    min-height: 140px;
+    background-color: #f4f6f9;
+    border-radius: 10px;
+    padding: 22px 28px;
+    font-size: 1.1rem;
+    color: #333;
+    line-height: 1.5;
+    box-shadow: inset 0 0 12px rgb(0 0 0 / 0.06);
+    user-select: text;
+    white-space: pre-wrap;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .container {
+      padding: 32px 24px 40px 24px;
+    }
+    h1 {
+      font-size: 2.4rem;
+    }
+    button#sendBtn {
+      font-size: 1.15rem;
+    }
+  }
+.mediation-result {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  max-height: 360px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.95rem;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+  margin-top: 12px;
+}
+#mediation-section label {
+  font-weight: 600;
+  color: #123366;
+  margin-bottom: 6px;
+}
+
+#mediation-section select,
+#mediation-section textarea {
+  font-family: 'Open Sans', sans-serif;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  padding: 14px 16px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+#mediation-section select:focus,
+#mediation-section textarea:focus {
+  border-color: #bfa14b;
+  outline: none;
+  box-shadow: 0 0 6px #bfa14b55;
+}
+
+#submitAnswers {
+  background-color: #bfa14b;
+  color: #123366;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 14px;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(191, 161, 75, 0.6);
+  transition: background-color 0.3s ease;
+}
+
+#submitAnswers:hover {
+  background-color: #a38736;
+  color: white;
+}
+
+#clarifyingQuestions,
+#finalAgreement {
+  background-color: #f4f6f9;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 16px;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.06);
+  font-size: 1rem;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-label="Nyay AI The Legal Adviser">
+
+  <nav aria-label="Main navigation">
+    <button class="nav-btn active" onclick="showSection(event, 'home')" type="button">Home</button>
+    <button class="nav-btn" onclick="showSection(event, 'about')" type="button">About</button>
+    <button class="nav-btn" onclick="showSection(event, 'howToFight')" type="button">Pro se</button>
+    <button class="nav-btn" onclick="showSection(event, 'mediation-section')" type="button">🪙 AI Lok Adalat</button>
+
+
+  </nav>
+
+  <section id="home" class="content-section active" aria-live="polite" aria-atomic="true">
+    <img src="{{ url_for('static', filename='images/Cartoonify.png') }}" alt="Advocate Saul Goodman Avatar" class="avatar" id="avatar" />
+
+<!-- Language Selector -->
+<label for="language" style="font-weight: bold; color: #123366;">🌐 Select Output Language:</label>
+<select id="language" name="language" required style="margin-bottom: 16px; padding: 8px 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ccc;">
+  <option value="en" selected>English</option>
+  <option value="hi">हिन्दी (Hindi)</option>
+</select>
+
+<p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 24px;">
+  
+</p>
+
+
+    <h1>Nyay AI - The Legal Adviser</h1>
+    <p class="tagline">"Truth has a new lawyer-and it's me, So Better call AI."</p>
+
+    <button id="startStopBtn" aria-pressed="false" aria-label="Start voice input">🎤 Start Listening</button>
+    <button id="clearChatBtn" aria-label="Clear conversation history">🗑️ Clear Chat</button>
+    <button id="muteBtn" aria-pressed="false" aria-label="Mute/Unmute AI voice">🔊</button>
+
+    <form id="caseForm" enctype="multipart/form-data" novalidate>
+      <textarea id="userText" name="query" placeholder="Your case will appear here..." aria-multiline="true" aria-label="Input your case details or questions"></textarea>
+
+      <label for="file">Upload Case File (PDF/JPG/PNG):</label>
+      <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload case file" />
+
+      <button type="submit" id="sendBtn" aria-label="Get Legal Advice">Get Legal Advice</button>
+    </form>
+
+    <h3>AI Response:</h3>
+    <div id="response" aria-live="polite" aria-atomic="true" tabindex="0"></div>
+  </section>
+
+  <section id="about" class="content-section" tabindex="0" aria-label="About Nyay AI" >
+    <h1>About Nyay AI</h1>
+     <p>🧑‍⚖️ 
+Nyay AI is a smart virtual legal assistant designed to help people solve legal problems quickly, especially those who cannot afford a lawyer or don’t know how the legal system works. It works just like a real lawyer who listens, asks important questions, reads your case files, and gives legal advice in simple language.
+
+</p>
+
+    <ul>
+      <li>💡 What Problem Does It Solve?</li>
+      <li>Many people in India face problems like:</li>
+      <li>High lawyer fees</li>
+      <li>Lack of legal awareness</li>
+      <li>Fear or confusion in approaching legal help</li>
+
+<p>Nyay AI solves this by providing free, fast, and accurate legal support directly through a website. It acts like a personal legal advisor who listens and replies like a human.</p>
+
+      <li>✅ Key Features:</li>
+      <ul>
+        <li>Users can upload legal documents like rent agreements or property papers, and Nyay AI reads and understands them automatically.</li>
+        <li>It cross-questions the user to check if the information is truthful or if there are contradictions.</li>
+        <li>The AI replies like a human lawyer, in a respectful and clear way, either in Hindi or English.</li>
+        <li>In Lok Adalat mode, the user selects a dispute type, answers clarifying questions asked by the AI, and instantly receives a one-page legal settlement draft to resolve the matter peacefully.</li>
+      </ul>
+
+      <li>⚖️ Benefits</li>
+      <p>Nyay AI helps common people by giving them instant legal advice without spending money on lawyers. It saves time, avoids long court procedures, and encourages peaceful resolution of issues. The language is easy to understand, and the advice is practical and balanced. It also protects against misuse by analyzing if the user is telling the truth.</p>
+        <li>🛠️ Technologies Used</li>
+        <p>This system is built using Python and Flask for the backend. It uses advanced AI models like LLaMA 3 through the Groq platform for smart legal thinking. The frontend is built using simple and clean HTML, CSS, and JavaScript. OCR tools are used to read text from PDFs and images.</p>
+        <li>🎯 Why This Project is Special</li> 
+        <p>Nyay AI is built for India and understands Indian legal needs. It brings legal help to people who usually don’t get access. It combines conversation, document analysis, and legal drafting into one smooth system. It is ready for real-world use and can be expanded in the future with more laws, features, and languages.</p>
+        
+      <p>"Nyay AI is not just a tool, it's a movement to ensure that justice becomes a right — not a privilege."</p>
+    </ul>
+  </section>
+
+  <section id="howToFight" class="content-section" tabindex="0" aria-label="Pro se">
+    <h1>Pro se – How to Fight Your Own Case in Court in India</h1>
+
+    <ul>
+      <li><strong>1. Right to Self-Representation:</strong> Any Indian citizen has the legal right to appear and fight their own case in court without hiring a lawyer. This is known as appearing as a "Party-in-Person".</li>
+
+      <li><strong>2. When You Can Represent Yourself:</strong> You can represent yourself in any court—District, High Court, or Supreme Court—if you're confident, prepared, and understand the process.</li>
+
+      <li><strong>3. Writing Your Petition:</strong> You need to draft a written complaint or petition. It must include the facts of your case, the legal relief you are seeking, and attach any supporting documents or evidence.</li>
+
+      <li><strong>4. Filing the Case:</strong> Submit your petition to the court registry along with the required court fees. After filing, your case will be assigned a case number and hearing date.</li>
+
+      <li><strong>5. Serving the Opponent:</strong> The court issues a legal notice or summon to the other party. You may be required to help ensure it reaches them.</li>
+
+      <li><strong>6. Appearing in Court:</strong> Attend court hearings on scheduled dates. Dress formally and be respectful in the courtroom. Present your arguments and documents clearly.</li>
+
+      <li><strong>7. Presenting Evidence and Witnesses:</strong> You can bring witnesses and submit documents to support your case. You are also allowed to cross-examine the other party and their witnesses.</li>
+
+      <li><strong>8. Understanding Basic Laws:</strong> Familiarize yourself with basic legal rules like the Civil Procedure Code (CPC), Indian Penal Code (IPC), Indian Evidence Act, and Criminal Procedure Code (CrPC).</li>
+
+      <li><strong>9. Following Court Procedures:</strong> Follow court rules, timelines, and decorum. Never interrupt the judge or the opposing party during arguments.</li>
+
+      <li><strong>10. Final Arguments and Judgment:</strong> Once evidence is complete, the court will allow final arguments. Then, the judge will decide the case based on facts, evidence, and law.</li>
+
+      <li><strong>11. Legal Help if Needed:</strong> Even if you’re representing yourself, you can consult a lawyer for drafting, advice, or review. You can also approach legal aid centers for free help.</li>
+    </ul>
+
+    <h2>Important Court Rules and Etiquette in India</h2>
+    <ul>
+      <li><strong>1. Dress Code:</strong> Always wear neat, formal, and modest clothes. Avoid flashy or casual wear like jeans, t-shirts, or sandals.</li>
+
+      <li><strong>2. Respect the Courtroom:</strong> Stand when the judge enters or leaves. Address the judge as “Your Honour” or “Sir/Madam.” Do not argue or shout.</li>
+
+      <li><strong>3. Speaking in Court:</strong> Speak only when asked. Use polite and clear language. Never interrupt others in the courtroom.</li>
+
+      <li><strong>4. Handling Evidence:</strong> Only submit original or attested copies. Do not tamper with or hide evidence.</li>
+
+      <li><strong>5. Presenting Witnesses:</strong> Bring witnesses as needed. Do not coach them to lie. They should speak the truth.</li>
+
+      <li><strong>6. Cross-Examination:</strong> Ask questions respectfully. Do not threaten or insult the other party or their witnesses.</li>
+
+      <li><strong>7. Talking to Victims or Opposing Party:</strong> Avoid direct communication outside court. Do not threaten or influence them.</li>
+
+      <li><strong>8. Court Timings:</strong> Be punctual. Arrive before your hearing. Delays can harm your case.</li>
+
+      <li><strong>9. Documentation:</strong> Keep documents organized. Bring copies. Provide translations if needed.</li>
+
+      <li><strong>10. Mobile Phones:</strong> Switch off your phone. Do not take photos or videos inside court.</li>
+
+      <li><strong>11. Honesty:</strong> Never lie or submit false documents. It may lead to serious penalties.</li>
+
+      <li><strong>12. Follow Court Orders:</strong> Respect and follow court judgments. If not satisfied, file an appeal legally.</li>
+
+      <li><strong>13. Confidentiality:</strong> Avoid sharing sensitive details on social media, especially in family/criminal matters.</li>
+
+      <li><strong>14. Use Legal Terms:</strong> Try using correct legal words like affidavit, petitioner, respondent, etc., for clarity.</li>
+    </ul>
+  </section>
+<section id="mediation-section" class="content-section" style="display: none;">
+  <h2>🪙 AI Lok Adalat - Instant Dispute Resolution </h2>
+
+  <form id="mediationForm">
+    <label for="disputeType">Choose Dispute Type:</label>
+    <select id="disputeType" name="dispute_type" required>
+      <option value="rent">🏠 Rent Issue</option>
+      <option value="property">🏡 Property Dispute</option>
+      <option value="noise">🔊 Neighbor Noise</option>
+    </select>
+
+    <div id="clarifyingQuestions" style="margin-top: 10px;"></div>
+
+    <label for="userResponse">💬 Your response to the above questions:</label>
+    <textarea id="userResponse" name="user_input" rows="4" placeholder="Write your answers here..." required></textarea>
+
+    <button type="submit" id="submitAnswers">Submit Answers</button>
+  </form>
+
+  <div id="finalAgreement" style="margin-top: 20px; display: none;"></div>
+</section>
+
+
+{% if mediation_result %}
+  <h3>📄 Suggested Settlement:</h3>
+  <div class="mediation-result">{{ mediation_result }}</div>
+
+  <form method="post" action="/mediate">
+    <input type="hidden" name="dispute_type" value="{{ request.form.dispute_type }}">
+    
+    <label for="user_input">💬 Your response to the above questions:</label><br>
+    <textarea name="user_input" rows="6" style="width: 100%; padding: 12px; margin-top: 8px;" required></textarea><br><br>
+
+    <button type="submit" style="padding: 10px 24px; font-weight: bold;">Submit Answers</button>
+  </form>
+{% endif %}
+
+
+</section>
+
+</div>
+
+  <script>
+  // ========== Section Switching ==========
+  function showSection(event, sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+
+    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  // ========== VOICE INPUT (Speech-to-Text) ==========
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  document.getElementById('startStopBtn').addEventListener('click', () => {
+    recognition.start();
+    document.getElementById('userText').placeholder = "🎙️ Listening... speak now";
+  });
+
+  recognition.onresult = function (event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("userText").value = transcript;
+  };
+
+  recognition.onerror = function (event) {
+    console.error("Speech recognition error:", event.error);
+    alert("🎤 Microphone error or permission denied.");
+  };
+
+  recognition.onend = function () {
+    document.getElementById('userText').placeholder = "Type your query or click mic";
+  };
+
+  // ========== VOICE OUTPUT (Text-to-Speech) ==========
+  const avatar = document.getElementById('avatar');
+  const muteBtn = document.getElementById('muteBtn');
+  const synth = window.speechSynthesis;
+  let voices = [];
+  let isMuted = false;
+  let isSpeaking = false;
+
+  function loadVoices() {
+    voices = synth.getVoices();
+  }
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function speak(text) {
+    if (!text || isMuted || !synth) return;
+
+    synth.cancel();
+    isSpeaking = false;
+
+    const language = document.getElementById('language').value;
+    const langCode = language === 'hi' ? 'hi-IN' : 'en-IN';
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = langCode;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    utterance.onstart = () => {
+      avatar.classList.add('talking');
+      isSpeaking = true;
+      document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    };
+
+    utterance.onend = utterance.onerror = () => {
+      avatar.classList.remove('talking');
+      isSpeaking = false;
+      document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    };
+
+    const preferredVoice = voices.find(v => v.lang === langCode) ||
+                           voices.find(v => v.lang.startsWith('en')) ||
+                           voices[0];
+    if (preferredVoice) utterance.voice = preferredVoice;
+
+    synth.speak(utterance);
+  }
+
+  muteBtn.onclick = () => {
+    isMuted = !isMuted;
+    muteBtn.setAttribute('aria-pressed', isMuted.toString());
+    muteBtn.textContent = isMuted ? "🔇 Muted" : "🔊";
+    if (isMuted && synth.speaking) {
+      synth.cancel();
+    }
+  };
+
+  // ========== FORM SUBMISSION ==========
+  document.getElementById('caseForm').onsubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    const text = document.getElementById('userText').value.trim();
+    const fileInput = document.getElementById('file');
+
+    if (!text && fileInput.files.length === 0) {
+      alert("Please speak/type your case or upload a file.");
+      return;
+    }
+
+    formData.append('query', text);
+    formData.append('language', document.getElementById('language').value);
+    if (fileInput.files.length > 0) {
+      formData.append('file', fileInput.files[0]);
+    }
+
+    document.getElementById('response').innerText = "⏳ Getting legal advice...";
+    document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+
+      if (data.answer) {
+        document.getElementById('response').innerText = data.answer;
+        speak(data.answer);
+      } else if (data.error) {
+        document.getElementById('response').innerText = "Error: " + data.error;
+      }
+    } catch (err) {
+      document.getElementById('response').innerText = "Error connecting to server.";
+      console.error(err);
+    } finally {
+      if (!isSpeaking) {
+        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+      }
+    }
+  };
+
+  // ========== CLEAR CHAT BUTTON ==========
+  document.getElementById('clearChatBtn').onclick = () => {
+    document.getElementById('userText').value = '';
+    document.getElementById('response').innerText = '';
+  };
+
+</script>
+<script>
+  function showSection(event, sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+      section.style.display = 'none';
+    });
+    document.getElementById(sectionId).style.display = 'block';
+
+    document.querySelectorAll('.nav-button').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
+</script>
+<script>
+  const clarifyingMap = {
+    rent: `1. What was the agreed rent and payment frequency?\n2. Has any rent been paid?\n3. Were there discussions about delay?\n4. Any other problems like damage or misbehavior?`,
+    property: `1. Who owns the property legally?\n2. What documents are involved?\n3. Any ongoing legal case?\n4. What resolution are you expecting?`,
+    noise: `1. What kind of noise disturbance?\n2. How frequent is the problem?\n3. Have you talked to the neighbor?\n4. Any police complaint or society involvement?`
+  };
+
+  const disputeTypeSelect = document.getElementById("disputeType");
+  const clarifyingQuestionsDiv = document.getElementById("clarifyingQuestions");
+  const finalAgreementDiv = document.getElementById("finalAgreement");
+  const responseBox = document.getElementById("userResponse");
+  const submitBtn = document.getElementById("submitAnswers");
+
+  disputeTypeSelect.addEventListener("change", () => {
+    const selected = disputeTypeSelect.value;
+    clarifyingQuestionsDiv.style.display = "block";
+    clarifyingQuestionsDiv.innerHTML = `<strong>📋 Questions:</strong><br><br>${clarifyingMap[selected].replace(/\n/g, '<br>')}`;
+  });
+
+  document.getElementById("mediationForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const disputeType = disputeTypeSelect.value;
+    const userInput = responseBox.value;
+
+    const response = await fetch("/mediate", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `dispute_type=${encodeURIComponent(disputeType)}&user_input=${encodeURIComponent(userInput)}`
+    });
+
+    const html = await response.text();
+
+    // Hide form inputs
+    clarifyingQuestionsDiv.style.display = "none";
+    responseBox.style.display = "none";
+    submitBtn.style.display = "none";
+
+    // Show Groq AI-generated response
+    finalAgreementDiv.style.display = "block";
+    finalAgreementDiv.innerHTML = html;
+  });
+
+  // Load default questions on page load
+  disputeTypeSelect.dispatchEvent(new Event("change"));
+</script>
+
+
+<footer style="margin-top: 60px; text-align: center; font-family: 'Merriweather', serif; font-size: 1rem; color: #bfa14b; text-shadow: 0 0 2px #00000055; letter-spacing: 0.05em; opacity: 0.95;">
+  ⚖️ "Speak the Truth. We'll Fight for It." | © 2025 <em>Nyay AI</em><br />
+  <span style="font-size: 0.9rem; color: #123366;">
+    Created By <strong>Ashutosh Tukaram Jaid</strong><br />
+    <a href="https://www.linkedin.com/feed/" target="_blank" style="color: #0072b1; text-decoration: none;">LinkedIn</a> |
+    <a href="mailto:jaidashutosh@gmail.com" style="color: #785211; text-decoration: none;">Email</a>
+  </span>
+</footer>
+
+</body>
+</html>
