@@ -124,39 +124,30 @@ Be neutral and avoid assumptions.
     }
 def generate_settlement(dispute_type, user_input):
     system_prompt = (
-        "You are Advocate Sol Goodman — a neutral, friendly Indian legal expert who mediates disputes. "
-        "You must always stay in character as a human legal mediator. Never mention AI or use markdown (**). "
-        "Respond clearly in a mix of Hindi and English that’s understandable to common people."
+        "You are Advocate Sol Goodman — a neutral, friendly Indian legal mediator. "
+        "Your job is to suggest a fair and lawful settlement based only on the user's answers and dispute type. "
+        "⚠️ Never ask clarifying questions. Never mention that you're waiting for responses. "
+        "Just provide a final, ready-to-use settlement agreement. "
+        "You are mediating in a Lok Adalat setting. "
+        "Use Hindi-English mix. Be polite, fair, and culturally appropriate. "
+        "Do NOT use markdown symbols (** or __). "
+        "Your response must begin with: '📄 Suggested Settlement:'"
     )
 
     prompt = f"""
-You are handling a {dispute_type} dispute.
-
-📌 Dispute Description:
+📂 Dispute Type: {dispute_type}
+💬 User's Description or Answers:
 {user_input}
 
-🧠 Your Mediation Task:
-1. Ask 3 clarifying questions to understand the situation better.
-2. Write a one-page mutual settlement agreement (in Hindi-English mix).
-3. Suggest a fair middle-ground — no bias.
-4. Cite relevant Indian law sections (if applicable).
-5. Add a small paragraph at the end: “✅ Benefits of This Agreement” — at least 2 advantages for both parties.
+🎯 Task:
+Write a legally sound mutual settlement agreement in Hindi-English mix. 
+Do not ask any questions. Only suggest a final, peaceful agreement.
 
-📄 Format:
-== Clarifying Questions ==
-1. ...
-2. ...
-3. ...
+Format your response like:
 
-== Draft Settlement Agreement ==
-[Clear, fair agreement in mix Hindi/English]
-
-== ✅ Benefits of This Agreement ==
-[2–3 key benefits to both parties]
-
-🎯 Important:
-- Use easy words (avoid legal jargon)
-- Keep it balanced and peaceful
-- Respect both sides equally
+📄 Suggested Settlement:
+[Agreement starts here...]
 """
+
     return get_legal_advice(prompt, system_prompt)
+
